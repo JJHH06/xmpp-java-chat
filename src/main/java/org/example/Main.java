@@ -32,6 +32,8 @@ public class Main {
         }
 
         //create an arraylist of type Chats
+
+        
         ArrayList<Chat> chats = new ArrayList<Chat>();
         //append the new chat to the arraylist
         chats.add(createChat(connection, "jjhh2@alumchat.fun"));
