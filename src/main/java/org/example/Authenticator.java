@@ -16,6 +16,7 @@ public class Authenticator {
     public static Connection connect(String servername) {
         ConnectionConfiguration config = new ConnectionConfiguration(servername, 5222);
         config.setSecurityMode(ConnectionConfiguration.SecurityMode.disabled);
+        config.setDebuggerEnabled(true);
         Connection connection = new XMPPConnection(config);
         try {
             connection.connect();

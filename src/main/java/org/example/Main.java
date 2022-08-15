@@ -178,5 +178,18 @@ public class Main {
         }
     }
 
+    // create a listener for that prints the group chat invite name
+    public static void createGroupInviteListener(Connection connection) {
+        connection.addPacketListener(new PacketListener() {
+            @Override
+            public void processPacket(Packet packet) {
+                Presence presence = (Presence) packet;
+                System.out.println(presence.getFrom() + " te MANDO ALGO XD");
+                if (presence.getType() == Presence.Type.subscribe) {
+                    System.out.println(presence.getFrom() + " te ha invitado a un grupo");
+                }
+            }
+        }, new PacketTypeFilter(Presence.class));
+    }
 
 }

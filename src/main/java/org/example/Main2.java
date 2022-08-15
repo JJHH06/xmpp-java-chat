@@ -4,8 +4,10 @@ import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.filter.PacketTypeFilter;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Packet;
+import org.jivesoftware.smack.packet.Presence;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Hashtable;
 import java.util.Scanner;
 
@@ -23,6 +25,7 @@ public class Main2 {
         String authOption = "";
         String username = "", password = "";
         String email = "", fullname  = "";
+        String groupID = "";
 
 
         do {
@@ -82,6 +85,7 @@ public class Main2 {
         Hashtable<String, Chat> chats = new Hashtable<>();
         Hashtable<String, ArrayList<String>> chatHistory = new Hashtable<>();
         recieveMessage(connection, chats, chatHistory);
+        createGroupInviteListener(connection);
 
         String chatWith = "";
         String chatOutgoingMessage = "";
@@ -89,7 +93,8 @@ public class Main2 {
 
         do{
             System.out.println(CONSOLE_REFRESHER+"Menú de opciones:");
-            System.out.println("1. Abrir chat\n2. Ver estados de amigos\n3. Hablar en un grupo\n4. Aceptar solicitudes de amistad\n5. Aceptar solicitudes de chat en grupo");
+            System.out.println("1. Abrir chat\n2. Ver estados de amigos\n3. Unirme a un grupo\n 4. Aceptar solicitudes de amistad\n5. Aceptar solicitudes de chat en grupo");
+            System.out.println(connection.getUser() + ">");
             optionMenu = scanner.nextLine();
             if(optionMenu.equals("1")){
                 System.out.println(CONSOLE_REFRESHER+"Ingrese el nombre de usuario del usuario con quien desea hablar:");
@@ -129,6 +134,17 @@ public class Main2 {
                 }
                 isInsideChat = false;
 
+            }
+            if(optionMenu.equals("3")) {
+                System.out.println(CONSOLE_REFRESHER + "Ingrese Jabber ID del group chat que desea entrar:");
+                groupID = scanner.nextLine();
+                joinGroupChat(connection, groupID);
+
+            }
+            else if(optionMenu.equals("4")) {
+                System.out.println(CONSOLE_REFRESHER + "Aceptando solicitudes de amistad");
+                getGroupInvites(connection);
+                scanner.nextLine();
             }
 
 
@@ -173,7 +189,16 @@ public class Main2 {
                 Message message = (Message) packet;
                 //System.out.println(message.getFrom()+ ": " + message.getBody());
                 // check if message is from groupchat
+                System.out.println(message.getFrom() + "EEEELTIPO"+ ": " + message.getBody());
+                // get the jid of the message invite
+
+                //accept conference invitation
+
+
+
+
                 if (message.getType() == Message.Type.groupchat) {
+                    System.out.println("HAY ALGO DE CHAT DE GRUPO");
                     // check if message is not null
                     if (message.getBody() != null) {
                         // print the message
@@ -199,6 +224,44 @@ public class Main2 {
 
             }
         }, new PacketTypeFilter(Message.class));
+    }
+
+    // get all my contact status
+    public static void getContactStatus(Connection connection) {
+        Roster roster = connection.getRoster();
+        Collection<RosterEntry> entries = roster.getEntries();
+        for (RosterEntry entry : entries) {
+            Presence presence = roster.getPresence(entry.getUser());
+            System.out.println(entry.getUser() + " " + presence.getType());
+        }
+    }
+    public static void createGroupInviteListener(Connection connection) {
+        connection.addPacketListener(new PacketListener() {
+            @Override
+            public void processPacket(Packet packet) {
+                Presence presence = (Presence) packet;
+                System.out.println(presence.getFrom() + " te MANDO ALGO XD");
+                if (presence.getType() == Presence.Type.subscribe) {
+                    System.out.println(presence.getFrom() + " te ha invitado a un grupo");
+                }
+            }
+        }, new PacketTypeFilter(Presence.class));
+    }
+    public static void getGroupInvites(Connection connection) {
+        try {
+            Roster roster = connection.getRoster();
+            for (RosterEntry entry : roster.getEntries()) {
+                System.out.println(entry.getName());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    // send a Presence to a jabber id to join a groupchat
+    public static void joinGroupChat(Connection connection, String jid) {
+        Presence joinPresence = new Presence(Presence.Type.available);
+        joinPresence.setTo(jid+"/"+connection.getUser().split("@")[0]);
+        connection.sendPacket(joinPresence);
     }
 
 }
