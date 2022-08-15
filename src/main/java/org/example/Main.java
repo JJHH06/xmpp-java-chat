@@ -31,28 +31,33 @@ public class Main {
             e.printStackTrace();
         }
 
-        //create an arraylist of type Chats
+        //creates a global listener for all messages
+        recieveMessage(connection);
+        sendPresence(connection);
 
-        
         ArrayList<Chat> chats = new ArrayList<Chat>();
         //append the new chat to the arraylist
         chats.add(createChat(connection, "jjhh2@alumchat.fun"));
 
-        sendMessage(chats.get(0), "Hola ya tas en un arraylist");
+        sendMessage(chats.get(0), "Hola ya tas en un arraylist y global listener");
         System.out.println("toy chateando con "+chats.get(0).getParticipant());
 
         String opcionMenu = "";
         do {
-            System.out.println("El pepe\n\n");
+            System.out.println("Chat XMPP\n\n1. Enviar mensaje directo\n\n");
             opcionMenu = scanner.nextLine();
+            if (opcionMenu.equals("1")) {
+                System.out.println("Por favor ingrese el usuario del destinatario");
+                String destinatario = scanner.nextLine();
+                System.out.println("Por favor ingrese el mensaje");
+                String mensaje = scanner.nextLine();
+                //sendMessage(destinatario, mensaje);
+            }
         } while((!opcionMenu.equals("0")));
         connection.disconnect();
 
 
     }
-    // create a conection to the server alumchat.fun
-
-
 
 
     // create a login to the server alumchat.fun
@@ -64,24 +69,24 @@ public class Main {
         }
 
     }
-//    // send presence to the server alumchat.fun
-//    public static void sendPresence(Connection connection) {
-//        Presence presence = new Presence(Presence.Type.available);
-//        try {
-//            connection.sendPacket(presence);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        }
+    // send presence to the server alumchat.fun
+    public static void sendPresence(Connection connection) {
+        Presence presence = new Presence(Presence.Type.available);
+        try {
+            connection.sendPacket(presence);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        }
 //    // create a chat with the user orlando@alumchat.fun
     public static Chat createChat(Connection connection, String username) {
         Chat chat = connection.getChatManager().createChat(username, new MessageListener() {
             @Override
             public void processMessage(Chat chat, Message message) {
                 // if message.getBody() is not null, then print the message
-                if (message.getBody() != null) {
-                    System.out.println(message.getFrom() + ": "+message.getBody());
-                }
+//                if (message.getBody() != null) {
+//                    System.out.println(message.getFrom() + ": "+message.getBody());
+//                }
 
             }
         });
@@ -102,7 +107,7 @@ public class Main {
             @Override
             public void processPacket(Packet packet) {
                 Message message = (Message) packet;
-                System.out.println(message.getFrom() + ": " + message.getBody());
+                System.out.println(message.getFrom()+ ": " + message.getBody());
             }
         }, new PacketTypeFilter(Message.class));
     }
@@ -118,6 +123,8 @@ public class Main {
 //        }
 //    }
 
+    //get all the groups of the user
+
 
     public static Connection connect() {
         ConnectionConfiguration config = new ConnectionConfiguration("alumchat.fun", 5222);
@@ -132,4 +139,44 @@ public class Main {
         }
         return connection;
     }
+    //get all the group invites of the user
+    public static void getGroupInvites(Connection connection) {
+        try {
+            Roster roster = connection.getRoster();
+            for (RosterEntry entry : roster.getEntries()) {
+                System.out.println(entry.getName());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    //accept a group invite
+    public static void acceptGroupInvite(Connection connection, String groupName) {
+        try {
+            Roster roster = connection.getRoster();
+            for (RosterEntry entry : roster.getEntries()) {
+                if (entry.getName().equals(groupName)) {
+                    roster.createEntry(entry.getUser(), entry.getName(), null);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }}
+
+    //print every new group invite
+    public static void getGroupInvites(Connection connection, String groupName) {
+        try {
+            Roster roster = connection.getRoster();
+            for (RosterEntry entry : roster.getEntries()) {
+                if (entry.getName().equals(groupName)) {
+                    System.out.println(entry.getName());
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
 }
