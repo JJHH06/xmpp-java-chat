@@ -30,6 +30,15 @@ public class Main2 {
         String email = "", fullname  = "";
         String groupID = "";
 
+        Presence.Type presenceType = Presence.Type.available;
+        String presenceTypeOption = "";
+
+        Presence.Mode presenceMode = Presence.Mode.available;
+        String presenceModeOption = "";
+
+        String presenceStatus = "";
+
+
 
 
         do {
@@ -105,7 +114,7 @@ public class Main2 {
 
         do{
             System.out.println(CONSOLE_REFRESHER+"Menú de opciones:");
-            System.out.println("1. Abrir chat\n2. Ver estados de amigos\n3. Unirme a un grupo\n4. Chatear en grupo\n5. Suscribirme a usuarios\n6. Aceptar suscripciones");
+            System.out.println("1. Abrir chat\n2. Cambiar mi presencia\n3. Unirme a un grupo\n4. Chatear en grupo\n5. Suscribirme a usuarios\n6. Aceptar suscripciones\n7. Información de un usuario\n8. Datos de mi Rooster\n9. Salir");
             System.out.println(connection.getUser() + ">");
             optionMenu = scanner.nextLine();
             if(optionMenu.equals("1")){
@@ -146,8 +155,50 @@ public class Main2 {
                 }
                 isInsideChat = false;
 
+            }else if(optionMenu.equals("2")) {
+                System.out.println(CONSOLE_REFRESHER+"Ingrese el nuevo estado de presencia:");
+                presenceStatus = scanner.nextLine();
+                System.out.println("Ingrese el nuevo tipo de presencia:");
+                System.out.println("1. Available\n2. Unavailable");
+                presenceTypeOption = scanner.nextLine();
+                System.out.println("Ingrese el nuevo show de presencia:");
+                System.out.println("1. Available\n2. Away\n3. Free to chat\n4. Do not disturb\n5. Extended away");
+                presenceModeOption = scanner.nextLine();
+
+                //Para el tipo de presencia
+                if(presenceTypeOption.equals("1")){
+                    presenceType = Presence.Type.available;
+                }else if(presenceTypeOption.equals("2")){
+                    presenceType = Presence.Type.unavailable;
+                }else{
+                    System.out.println("Tipo de presencia inválida (se usará available)");
+                }
+
+                switch (presenceModeOption) {
+                    case "1":
+                        presenceMode = Presence.Mode.available;
+                        break;
+                    case "2":
+                        presenceMode = Presence.Mode.away;
+                        break;
+                    case "3":
+                        presenceMode = Presence.Mode.chat;
+                        break;
+                    case "4":
+                        presenceMode = Presence.Mode.dnd;
+                        break;
+                    case "5":
+                        presenceMode = Presence.Mode.xa;
+                        break;
+                    default:
+                        presenceMode = Presence.Mode.available;
+                        System.out.println("Modo de presencia inválido (se usara default)");
+                        break;
+                }
+                changeStatus(connection, presenceType, presenceMode, presenceStatus);
+
             }
-            if(optionMenu.equals("3")) {
+            else if(optionMenu.equals("3")) {
                 System.out.println(CONSOLE_REFRESHER + "Ingrese Jabber ID del group chat que desea entrar:");
                 groupID = scanner.nextLine();
                 joinGroupChat(connection, groupID);
@@ -201,7 +252,10 @@ public class Main2 {
             }
 
 
-        } while (!optionMenu.equals("0"));
+        } while (!optionMenu.equals("9"));
+        System.out.println(CONSOLE_REFRESHER + "Saliendo del programa");
+        connection.disconnect();
+
 
 
 
@@ -370,4 +424,20 @@ public class Main2 {
         //get all the entries that want to subscribe to me
 
     }
+    // get the status of a user
+    public static Presence getUserStatus(Connection connection, String jid) {
+        Roster roster = connection.getRoster();
+        return roster.getPresence(jid);
+    }
+
+    // change my status and status message
+    public static void changeStatus(Connection connection, Presence.Type type, Presence.Mode mode,String statusMessage) {
+        Presence presence = new Presence(type);
+        presence.setStatus(statusMessage);
+        presence.setMode(mode);
+        connection.sendPacket(presence);
+    }
+
+
+
 }
