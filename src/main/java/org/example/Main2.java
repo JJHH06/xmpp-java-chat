@@ -42,13 +42,13 @@ public class Main2 {
 
 
         do {
-            System.out.println(CONSOLE_REFRESHER + "Bienvenido al AlumnchatXMPP19707");
-            System.out.println("1. Iniciar sesión\n2. Crear una cuenta\n3. Salir");
+            System.out.println(CONSOLE_REFRESHER + "Welcome to AlumnchatXMPP19707");
+            System.out.println("1. Login\n2. Create account\n3. Exit");
             authOption = scanner.nextLine();
             if(authOption.equals("1")){
-                System.out.println(CONSOLE_REFRESHER+"Por favor ingrese su username:");
+                System.out.println(CONSOLE_REFRESHER+"Please enter your username:");
                 username = scanner.nextLine();
-                System.out.println("Por favor ingrese su password:");
+                System.out.println("Please enter your password:");
                 password = scanner.nextLine();
                 try {
                     Authenticator.login(connection, username, password);
@@ -110,6 +110,8 @@ public class Main2 {
         receiveSubscriptions(connection);
         String chatWith = "";
         String chatOutgoingMessage = "";
+        String confirmDelete = "";
+
         receiveRosterUpdates(connection);
 
 
@@ -278,6 +280,21 @@ public class Main2 {
                 }
                 System.out.println("\n Press enter to continue...");
                 scanner.nextLine();
+
+            } else if (optionMenu.equals("--del")) {
+                System.out.println(CONSOLE_REFRESHER + "Para eliminar su cuenta "+connection.getUser()+" Escriba YES para confirmar");
+                confirmDelete = scanner.nextLine();
+                if(confirmDelete.equals("YES")){
+                    Authenticator.deleteAccount(connection);
+                    System.out.println("Se ha eliminado la cuenta exitosamente, vuelva a autenticarse");
+                    optionMenu = "9";
+                }
+                else{
+                    System.out.println("No se eliminó la cuenta");
+                }
+                System.out.println("\n Press enter to continue...");
+                scanner.nextLine();
+
 
             }
 

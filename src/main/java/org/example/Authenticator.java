@@ -62,4 +62,12 @@ public class Authenticator {
         }
     }
 
+    static void deleteAccount (Connection connection) {
+        try {
+            connection.getAccountManager().deleteAccount();
+        } catch (XMPPException e) {
+            e.printStackTrace();
+        }
+    }
+
 }
