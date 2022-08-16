@@ -110,6 +110,7 @@ public class Main2 {
         receiveSubscriptions(connection);
         String chatWith = "";
         String chatOutgoingMessage = "";
+        receiveRosterUpdates(connection);
 
 
         do {
@@ -371,18 +372,7 @@ public class Main2 {
             System.out.println(entry.getUser() + " " + presence.getType());
         }
     }
-    public static void createGroupInviteListener(Connection connection) {
-        connection.addPacketListener(new PacketListener() {
-            @Override
-            public void processPacket(Packet packet) {
-                Presence presence = (Presence) packet;
-                System.out.println(presence.getFrom() + " te MANDO ALGO XD");
-                if (presence.getType() == Presence.Type.subscribe) {
-                    System.out.println(presence.getFrom() + " te ha invitado a un grupo");
-                }
-            }
-        }, new PacketTypeFilter(Presence.class));
-    }
+
     public static void getGroupInvites(Connection connection) {
         try {
             Roster roster = connection.getRoster();
@@ -479,6 +469,26 @@ public class Main2 {
     public static String getUnknownUserStatus(Connection connection, String jid) {
         Presence presence = connection.getRoster().getPresence(jid);
         return "User: "+ jid + "\nPresence: "+presence.getType();
+    }
+    // create a roster listener to get roster updates
+    public static void receiveRosterUpdates(Connection connection) {
+        Roster roster = connection.getRoster();
+        roster.addRosterListener(new RosterListener() {
+            @Override
+            public void entriesAdded(Collection<String> addresses) {}
+            @Override
+            public void entriesUpdated(Collection<String> addresses) {
+                for( String userId : addresses) {
+                    System.out.println("@Notificación: "+userId + " has changed its profile information");
+                }
+            }
+            @Override
+            public void entriesDeleted(Collection<String> addresses) {}
+            @Override
+            public void presenceChanged(Presence presence) {
+                System.out.println("@Notificacion: "+presence.getFrom() + " has status updates");
+            }
+        });
     }
 
 
