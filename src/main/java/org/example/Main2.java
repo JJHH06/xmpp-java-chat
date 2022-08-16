@@ -5,6 +5,7 @@ import org.jivesoftware.smack.filter.PacketTypeFilter;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.packet.Presence;
+import org.jivesoftware.smack.packet.RosterPacket;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -17,9 +18,11 @@ public class Main2 {
         String CONSOLE_REFRESHER = "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n" +
                 "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n" +
                 "\n\n\n";
+
         Boolean authenticated = false;
         System.out.println("Alumnchat");
         Connection connection = Authenticator.connect("alumchat.fun");
+        connection.getRoster().setSubscriptionMode(Roster.SubscriptionMode.manual);
         System.out.println("Connected to XMPP server");
         Scanner scanner = new Scanner(System.in);
         String authOption = "";
@@ -50,6 +53,7 @@ public class Main2 {
                 }else{
                     System.out.println("Login failed. Please try again.");
                     connection = Authenticator.connect("alumchat.fun");
+                    connection.getRoster().setSubscriptionMode(Roster.SubscriptionMode.manual);
                 }
 
             } else if (authOption.equals("2")) {
@@ -90,16 +94,18 @@ public class Main2 {
         //Hashtable<String, Chat> groupChats = new Hashtable<>();
         Hashtable<String, ArrayList<String>> groupChatHistory = new Hashtable<>();
 
+        ArrayList<String> subscriptionRequests = new ArrayList<>();
+
         recieveMessage(connection, chats, chatHistory, groupChatHistory);
         //createGroupInviteListener(connection);
-
+        receiveSubscriptions(connection);
         String chatWith = "";
         String chatOutgoingMessage = "";
 
 
         do{
             System.out.println(CONSOLE_REFRESHER+"Menú de opciones:");
-            System.out.println("1. Abrir chat\n2. Ver estados de amigos\n3. Unirme a un grupo\n4. Chatear en grupo\n5. Suscribirme a usuarios\n6. Salir");
+            System.out.println("1. Abrir chat\n2. Ver estados de amigos\n3. Unirme a un grupo\n4. Chatear en grupo\n5. Suscribirme a usuarios\n6. Aceptar suscripciones");
             System.out.println(connection.getUser() + ">");
             optionMenu = scanner.nextLine();
             if(optionMenu.equals("1")){
@@ -173,6 +179,25 @@ public class Main2 {
                 System.out.println(CONSOLE_REFRESHER + "Ingrese el nombre de usuario del usuario con quien desea suscribirse:");
                 chatWith = scanner.nextLine();
                 subscribeToUser(connection, chatWith);
+            } else if (optionMenu.equals("6")) {
+                System.out.println("Ingrese el nombre de usuario del usuario con quien desea aceptar la suscripción:");
+                chatWith = scanner.nextLine();
+                acceptSubscription(connection, chatWith);
+                //System.out.println(CONSOLE_REFRESHER + "Usuarios con suscripción pendiente:");
+                //subscriptionRequests = getSubscriptions(connection);
+                //for (String pendUser : subscriptionRequests) {
+                //    System.out.println(pendUser);
+                //}
+                //System.out.println("Ingrese el nombre de usuario del usuario con quien desea aceptar la suscripción:");
+               // chatWith = scanner.nextLine();
+                //if(subscriptionRequests.contains(chatWith)){
+                    //acceptSubscription(connection, chatWith);
+                //}
+                //else{
+                    //System.out.println("No existe la suscripción pendiente");
+                    //System.out.println("Presione enter para continuar");
+                    //scanner.nextLine();
+                //}
             }
 
 
@@ -316,5 +341,33 @@ public class Main2 {
         subscribePresence.setTo(jid);
         connection.sendPacket(subscribePresence);
     }
-    
+    // create a listener to get subscription requests
+    public static void receiveSubscriptions(Connection connection) {
+        connection.addPacketListener(new PacketListener() {
+            @Override
+            public void processPacket(Packet packet) {
+                Presence presence = (Presence) packet;
+                if (presence.getType() == Presence.Type.subscribe) {
+                    System.out.println(" @notificacion: "+presence.getFrom() + " Se quiere suscribir");
+                }
+            }
+        }, new PacketTypeFilter(Presence.class));
+    }
+    // get all the users that want to subscribe to me
+    public static ArrayList<String> getSubscriptions(Connection connection) {
+        Roster roster = connection.getRoster();
+        Collection<RosterEntry> entries = roster.getEntries();
+        ArrayList<String> subscriptions = new ArrayList<String>();
+        for (RosterEntry entry : entries) {
+            //if entry is pending
+            //entry.getType();
+            System.out.println(entry.getUser() + " " + entry.getType());
+            //if (entry.getType() == RosterPacket.ItemType.from) {
+                //subscriptions.add(entry.getUser());
+            //}
+        }
+        return subscriptions;
+        //get all the entries that want to subscribe to me
+
+    }
 }
