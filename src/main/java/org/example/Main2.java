@@ -81,11 +81,16 @@ public class Main2 {
         //Chat chatprueba = createChat(connection, "jjhh2@alumchat.fun");
 
         //sendMessage(chatprueba, "Hola soy un mensaje ya bueno xd");
-
+        //Chats normales
         Hashtable<String, Chat> chats = new Hashtable<>();
         Hashtable<String, ArrayList<String>> chatHistory = new Hashtable<>();
-        recieveMessage(connection, chats, chatHistory);
-        createGroupInviteListener(connection);
+
+        //Chats de grupo
+        //Hashtable<String, Chat> groupChats = new Hashtable<>();
+        Hashtable<String, ArrayList<String>> groupChatHistory = new Hashtable<>();
+
+        recieveMessage(connection, chats, chatHistory, groupChatHistory);
+        //createGroupInviteListener(connection);
 
         String chatWith = "";
         String chatOutgoingMessage = "";
@@ -93,7 +98,7 @@ public class Main2 {
 
         do{
             System.out.println(CONSOLE_REFRESHER+"Menú de opciones:");
-            System.out.println("1. Abrir chat\n2. Ver estados de amigos\n3. Unirme a un grupo\n 4. Aceptar solicitudes de amistad\n5. Aceptar solicitudes de chat en grupo");
+            System.out.println("1. Abrir chat\n2. Ver estados de amigos\n3. Unirme a un grupo\n4. Chatear en grupo\n5. Aceptar solicitudes de chat en grupo");
             System.out.println(connection.getUser() + ">");
             optionMenu = scanner.nextLine();
             if(optionMenu.equals("1")){
@@ -139,12 +144,30 @@ public class Main2 {
                 System.out.println(CONSOLE_REFRESHER + "Ingrese Jabber ID del group chat que desea entrar:");
                 groupID = scanner.nextLine();
                 joinGroupChat(connection, groupID);
+                groupChatHistory.put(groupID, new ArrayList<String>());
 
             }
             else if(optionMenu.equals("4")) {
-                System.out.println(CONSOLE_REFRESHER + "Aceptando solicitudes de amistad");
-                getGroupInvites(connection);
-                scanner.nextLine();
+                System.out.println(CONSOLE_REFRESHER + "Ingrese Jabber ID del chat de grupo al que desee chatear:");
+                groupID = scanner.nextLine();
+                if(groupChatHistory.containsKey(groupID)){
+                    isInsideChat = true;
+                    //print everything in the group chat history
+                    for (String messageIterator : groupChatHistory.get(groupID)) {
+                        System.out.println(messageIterator);
+                    }
+                    do{
+                        chatOutgoingMessage = scanner.nextLine();
+                        if(!chatOutgoingMessage.equals("")){
+                            sendGroupMessage(connection, groupID, chatOutgoingMessage);
+                            groupChatHistory.get(groupID).add(chatOutgoingMessage);
+                        }
+                    }while(!chatOutgoingMessage.equals(""));
+                }
+                else{
+                    System.out.println("No existe el chat de grupo, por favor unirse a este");
+                }
+                isInsideChat = false;
             }
 
 
@@ -181,7 +204,7 @@ public class Main2 {
             e.printStackTrace();
         }
     }
-    public static void recieveMessage(Connection connection, Hashtable<String, Chat> chats, Hashtable<String, ArrayList<String>> chatHistory) {
+    public static void recieveMessage(Connection connection, Hashtable<String, Chat> chats, Hashtable<String, ArrayList<String>> chatHistory, Hashtable<String, ArrayList<String>> groupChatHistory) {
         connection.addPacketListener(new PacketListener() {
             @Override
             public void processPacket(Packet packet) {
@@ -189,7 +212,7 @@ public class Main2 {
                 Message message = (Message) packet;
                 //System.out.println(message.getFrom()+ ": " + message.getBody());
                 // check if message is from groupchat
-                System.out.println(message.getFrom() + "EEEELTIPO"+ ": " + message.getBody());
+                //System.out.println(message.getFrom() + "EEEELTIPO"+ ": " + message.getBody());
                 // get the jid of the message invite
 
                 //accept conference invitation
@@ -198,13 +221,17 @@ public class Main2 {
 
 
                 if (message.getType() == Message.Type.groupchat) {
-                    System.out.println("HAY ALGO DE CHAT DE GRUPO");
                     // check if message is not null
-                    if (message.getBody() != null) {
+                    if (message.getBody() != null && !connection.getUser().split("@")[0].equals(message.getFrom().split("/")[1])) {
                         // print the message
-                        System.out.println(message.getFrom() + ": GC" + message.getBody());
-                        //print the groupchat id
-                        System.out.println("Groupchat id: " + message.getFrom().split("/")[0]);
+                        groupChatHistory.get(message.getFrom().split("/")[0]).add(message.getFrom()+"-> "+message.getBody());
+                        if(isInsideChat) {
+                            System.out.println(message.getFrom() + "-> " + message.getBody());
+                        } else {
+                            System.out.println("(@Notificación Mensaje chat de grupo: " + message.getFrom().split("/")[0]);
+                        }
+
+
                     }
                 } else{
                     // check if message is not null
@@ -217,7 +244,7 @@ public class Main2 {
                                 }
                             });
                             chats.put(message.getFrom().split("@")[0], createChat(connection, message.getFrom().split("@")[0]+"@alumchat.fun", chatHistory));
-                            System.out.println("(@Notificación chat nuevo de: "+message.getFrom().split("@")[0] +")");
+                            System.out.println("(@Notificación chat creado de: "+message.getFrom().split("@")[0] +")");
                         }
                     }
                 }
@@ -262,6 +289,14 @@ public class Main2 {
         Presence joinPresence = new Presence(Presence.Type.available);
         joinPresence.setTo(jid+"/"+connection.getUser().split("@")[0]);
         connection.sendPacket(joinPresence);
+    }
+    // send Message to a jabber id to send a groupchat message
+    public static void sendGroupMessage(Connection connection, String jid, String message) {
+        Message groupMessage = new Message();
+        groupMessage.setTo(jid);
+        groupMessage.setBody(message);
+        groupMessage.setType(Message.Type.groupchat);
+        connection.sendPacket(groupMessage);
     }
 
 }
