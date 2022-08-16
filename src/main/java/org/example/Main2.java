@@ -28,6 +28,7 @@ public class Main2 {
         String groupID = "";
 
 
+
         do {
             System.out.println(CONSOLE_REFRESHER + "Bienvenido al AlumnchatXMPP19707");
             System.out.println("1. Iniciar sesión\n2. Crear una cuenta\n3. Salir");
@@ -98,7 +99,7 @@ public class Main2 {
 
         do{
             System.out.println(CONSOLE_REFRESHER+"Menú de opciones:");
-            System.out.println("1. Abrir chat\n2. Ver estados de amigos\n3. Unirme a un grupo\n4. Chatear en grupo\n5. Aceptar solicitudes de chat en grupo");
+            System.out.println("1. Abrir chat\n2. Ver estados de amigos\n3. Unirme a un grupo\n4. Chatear en grupo\n5. Suscribirme a usuarios\n6. Salir");
             System.out.println(connection.getUser() + ">");
             optionMenu = scanner.nextLine();
             if(optionMenu.equals("1")){
@@ -168,6 +169,10 @@ public class Main2 {
                     System.out.println("No existe el chat de grupo, por favor unirse a este");
                 }
                 isInsideChat = false;
+            } else if(optionMenu.equals("5")) {
+                System.out.println(CONSOLE_REFRESHER + "Ingrese el nombre de usuario del usuario con quien desea suscribirse:");
+                chatWith = scanner.nextLine();
+                subscribeToUser(connection, chatWith);
             }
 
 
@@ -299,4 +304,17 @@ public class Main2 {
         connection.sendPacket(groupMessage);
     }
 
+    // subscribe to a user
+    public static void subscribeToUser(Connection connection, String jid) {
+        Presence subscribePresence = new Presence(Presence.Type.subscribe);
+        subscribePresence.setTo(jid);
+        connection.sendPacket(subscribePresence);
+    }
+    // accept a subscription request
+    public static void acceptSubscription(Connection connection, String jid) {
+        Presence subscribePresence = new Presence(Presence.Type.subscribed);
+        subscribePresence.setTo(jid);
+        connection.sendPacket(subscribePresence);
+    }
+    
 }
