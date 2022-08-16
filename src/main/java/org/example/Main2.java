@@ -249,17 +249,35 @@ public class Main2 {
                     //System.out.println("Presione enter para continuar");
                     //scanner.nextLine();
                 //}
+            }else if (optionMenu.equals("7")) {
+                subscriptionRequests = getSubscriptions(connection, RosterPacket.ItemType.from);
+                System.out.println(CONSOLE_REFRESHER + "-Users to whom i am subscribed:\n");
+                for(String userData : subscriptionRequests){
+                    System.out.println();
+                    System.out.println(userData);
+                }
+                System.out.println("\n -Users to whom we share a subscription:\n");
+                subscriptionRequests = getSubscriptions(connection, RosterPacket.ItemType.both);
+                for(String userData : subscriptionRequests){
+                    System.out.println();
+                    System.out.println(userData);
+                }
+                System.out.println("\n -Users to who are subscribed to me:\n");
+                subscriptionRequests = getSubscriptions(connection, RosterPacket.ItemType.to);
+                for(String userData : subscriptionRequests){
+                    System.out.println();
+                    System.out.println(userData);
+                }
+                System.out.println("\n\n Press enter to continue...\n");
+                scanner.nextLine();
+
             }
 
 
         } while (!optionMenu.equals("9"));
         System.out.println(CONSOLE_REFRESHER + "Saliendo del programa");
-        connection.disconnect();
-
-
-
-
-
+        Authenticator.logout(connection);
+        System.exit(0);
 
     }// end
     public static Chat createChat(Connection connection, String username, Hashtable<String, ArrayList<String>> chatHistory) {
@@ -408,27 +426,26 @@ public class Main2 {
         }, new PacketTypeFilter(Presence.class));
     }
     // get all the users that want to subscribe to me
-    public static ArrayList<String> getSubscriptions(Connection connection) {
+    public static ArrayList<String> getSubscriptions(Connection connection, RosterPacket.ItemType type) {
         Roster roster = connection.getRoster();
         Collection<RosterEntry> entries = roster.getEntries();
         ArrayList<String> subscriptions = new ArrayList<String>();
         for (RosterEntry entry : entries) {
             //if entry is pending
             //entry.getType();
-            System.out.println(entry.getUser() + " " + entry.getType());
+            if (entry.getType() == type) {
+                subscriptions.add(getUserStatus(connection, entry.getUser(), type));
+            }
+
             //if (entry.getType() == RosterPacket.ItemType.from) {
-                //subscriptions.add(entry.getUser());
+            //    subscriptions.add(entry.getUser());
             //}
         }
         return subscriptions;
         //get all the entries that want to subscribe to me
 
     }
-    // get the status of a user
-    public static Presence getUserStatus(Connection connection, String jid) {
-        Roster roster = connection.getRoster();
-        return roster.getPresence(jid);
-    }
+
 
     // change my status and status message
     public static void changeStatus(Connection connection, Presence.Type type, Presence.Mode mode,String statusMessage) {
@@ -436,6 +453,20 @@ public class Main2 {
         presence.setStatus(statusMessage);
         presence.setMode(mode);
         connection.sendPacket(presence);
+    }
+    // Get all presence status, presence type and presence mode of a user
+    public static String getUserStatus(Connection connection, String jid, RosterPacket.ItemType type) {
+        Presence presence = connection.getRoster().getPresence(jid);
+        //System.out.println(presence.getType() + " " + presence.getMode() + " " + presence.getStatus());
+        String result = "";
+        if (RosterPacket.ItemType.to == type) {
+            result = "User: "+jid+"\nType: " + presence.getType();
+        } else if (RosterPacket.ItemType.none == type) {
+            result = "";
+        } else{
+            result = "User: "+jid+ "\nType: "+presence.getType() + (presence.getMode() != null?"\nShow: " + presence.getMode() + (presence.getStatus()!= null ? "\nStatus: "+presence.getStatus():""):"");
+        }
+        return result;
     }
 
 
