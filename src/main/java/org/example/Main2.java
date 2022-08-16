@@ -112,51 +112,50 @@ public class Main2 {
         String chatOutgoingMessage = "";
 
 
-        do{
-            System.out.println(CONSOLE_REFRESHER+"Menú de opciones:");
+        do {
+            System.out.println(CONSOLE_REFRESHER + "Menú de opciones:");
             System.out.println("1. Abrir chat\n2. Cambiar mi presencia\n3. Unirme a un grupo\n4. Chatear en grupo\n5. Suscribirme a usuarios\n6. Aceptar suscripciones\n7. Información de un usuario\n8. Datos de mi Rooster\n9. Salir");
             System.out.println(connection.getUser() + ">");
             optionMenu = scanner.nextLine();
-            if(optionMenu.equals("1")){
-                System.out.println(CONSOLE_REFRESHER+"Ingrese el nombre de usuario del usuario con quien desea hablar:");
+            if (optionMenu.equals("1")) {
+                System.out.println(CONSOLE_REFRESHER + "Ingrese el nombre de usuario del usuario con quien desea hablar:");
                 chatWith = scanner.nextLine();
-                if(chats.containsKey(chatWith)) {
+                if (chats.containsKey(chatWith)) {
                     System.out.println(CONSOLE_REFRESHER + "Abriendo chat con:  " + chatWith);
                     // print chat history with chatWith
                     for (String messageIterator : chatHistory.get(chatWith)) {
                         System.out.println(messageIterator);
                     }
                     isInsideChat = true;
-                    do{
+                    do {
                         chatOutgoingMessage = scanner.nextLine();
-                        if(!chatOutgoingMessage.equals("")){
+                        if (!chatOutgoingMessage.equals("")) {
                             sendMessage(chats.get(chatWith), chatOutgoingMessage);
                             chatHistory.get(chatWith).add(chatOutgoingMessage);
                         }
 
-                    }while(!chatOutgoingMessage.equals(""));
-
+                    } while (!chatOutgoingMessage.equals(""));
 
 
                 } else {
                     System.out.println(CONSOLE_REFRESHER + "Creando un chat con: " + chatWith);
-                    chats.put(chatWith, createChat(connection, chatWith+"@alumchat.fun", chatHistory));
+                    chats.put(chatWith, createChat(connection, chatWith + "@alumchat.fun", chatHistory));
                     chatHistory.put(chatWith, new ArrayList<String>());
                     isInsideChat = true;
-                    do{
+                    do {
                         chatOutgoingMessage = scanner.nextLine();
-                        if(!chatOutgoingMessage.equals("")){
+                        if (!chatOutgoingMessage.equals("")) {
                             sendMessage(chats.get(chatWith), chatOutgoingMessage);
                             chatHistory.get(chatWith).add(chatOutgoingMessage);
                         }
 
-                    }while(!chatOutgoingMessage.equals(""));
+                    } while (!chatOutgoingMessage.equals(""));
 
                 }
                 isInsideChat = false;
 
-            }else if(optionMenu.equals("2")) {
-                System.out.println(CONSOLE_REFRESHER+"Ingrese el nuevo estado de presencia:");
+            } else if (optionMenu.equals("2")) {
+                System.out.println(CONSOLE_REFRESHER + "Ingrese el nuevo estado de presencia:");
                 presenceStatus = scanner.nextLine();
                 System.out.println("Ingrese el nuevo tipo de presencia:");
                 System.out.println("1. Available\n2. Unavailable");
@@ -166,11 +165,11 @@ public class Main2 {
                 presenceModeOption = scanner.nextLine();
 
                 //Para el tipo de presencia
-                if(presenceTypeOption.equals("1")){
+                if (presenceTypeOption.equals("1")) {
                     presenceType = Presence.Type.available;
-                }else if(presenceTypeOption.equals("2")){
+                } else if (presenceTypeOption.equals("2")) {
                     presenceType = Presence.Type.unavailable;
-                }else{
+                } else {
                     System.out.println("Tipo de presencia inválida (se usará available)");
                 }
 
@@ -197,36 +196,33 @@ public class Main2 {
                 }
                 changeStatus(connection, presenceType, presenceMode, presenceStatus);
 
-            }
-            else if(optionMenu.equals("3")) {
+            } else if (optionMenu.equals("3")) {
                 System.out.println(CONSOLE_REFRESHER + "Ingrese Jabber ID del group chat que desea entrar:");
                 groupID = scanner.nextLine();
                 joinGroupChat(connection, groupID);
                 groupChatHistory.put(groupID, new ArrayList<String>());
 
-            }
-            else if(optionMenu.equals("4")) {
+            } else if (optionMenu.equals("4")) {
                 System.out.println(CONSOLE_REFRESHER + "Ingrese Jabber ID del chat de grupo al que desee chatear:");
                 groupID = scanner.nextLine();
-                if(groupChatHistory.containsKey(groupID)){
+                if (groupChatHistory.containsKey(groupID)) {
                     isInsideChat = true;
                     //print everything in the group chat history
                     for (String messageIterator : groupChatHistory.get(groupID)) {
                         System.out.println(messageIterator);
                     }
-                    do{
+                    do {
                         chatOutgoingMessage = scanner.nextLine();
-                        if(!chatOutgoingMessage.equals("")){
+                        if (!chatOutgoingMessage.equals("")) {
                             sendGroupMessage(connection, groupID, chatOutgoingMessage);
                             groupChatHistory.get(groupID).add(chatOutgoingMessage);
                         }
-                    }while(!chatOutgoingMessage.equals(""));
-                }
-                else{
+                    } while (!chatOutgoingMessage.equals(""));
+                } else {
                     System.out.println("No existe el chat de grupo, por favor unirse a este");
                 }
                 isInsideChat = false;
-            } else if(optionMenu.equals("5")) {
+            } else if (optionMenu.equals("5")) {
                 System.out.println(CONSOLE_REFRESHER + "Ingrese el nombre de usuario del usuario con quien desea suscribirse:");
                 chatWith = scanner.nextLine();
                 subscribeToUser(connection, chatWith);
@@ -240,35 +236,46 @@ public class Main2 {
                 //    System.out.println(pendUser);
                 //}
                 //System.out.println("Ingrese el nombre de usuario del usuario con quien desea aceptar la suscripción:");
-               // chatWith = scanner.nextLine();
+                // chatWith = scanner.nextLine();
                 //if(subscriptionRequests.contains(chatWith)){
-                    //acceptSubscription(connection, chatWith);
+                //acceptSubscription(connection, chatWith);
                 //}
                 //else{
-                    //System.out.println("No existe la suscripción pendiente");
-                    //System.out.println("Presione enter para continuar");
-                    //scanner.nextLine();
+                //System.out.println("No existe la suscripción pendiente");
+                //System.out.println("Presione enter para continuar");
+                //scanner.nextLine();
                 //}
             }else if (optionMenu.equals("7")) {
+                System.out.println(CONSOLE_REFRESHER + "Ingrese el jabber id del usuario que desea conocer información:");
+                chatWith = scanner.nextLine();
+                System.out.println("\n"+getUnknownUserStatus(connection, chatWith));
+                System.out.println("\n Press enter to continue...");
+                scanner.nextLine();
+
+
+            }else if (optionMenu.equals("8")) {
                 subscriptionRequests = getSubscriptions(connection, RosterPacket.ItemType.from);
-                System.out.println(CONSOLE_REFRESHER + "-Users to whom i am subscribed:\n");
+                System.out.println(CONSOLE_REFRESHER + "-Users to whom i am subscribed:");
                 for(String userData : subscriptionRequests){
-                    System.out.println();
                     System.out.println(userData);
+                    System.out.println();
+
                 }
-                System.out.println("\n -Users to whom we share a subscription:\n");
+                System.out.println("\n -Users to whom we share a subscription:");
                 subscriptionRequests = getSubscriptions(connection, RosterPacket.ItemType.both);
                 for(String userData : subscriptionRequests){
-                    System.out.println();
                     System.out.println(userData);
+                    System.out.println();
+
                 }
-                System.out.println("\n -Users to who are subscribed to me:\n");
+                System.out.println("\n -Users to who are subscribed to me:");
                 subscriptionRequests = getSubscriptions(connection, RosterPacket.ItemType.to);
                 for(String userData : subscriptionRequests){
-                    System.out.println();
                     System.out.println(userData);
+                    System.out.println();
+
                 }
-                System.out.println("\n\n Press enter to continue...\n");
+                System.out.println("\n Press enter to continue...");
                 scanner.nextLine();
 
             }
@@ -467,6 +474,11 @@ public class Main2 {
             result = "User: "+jid+ "\nType: "+presence.getType() + (presence.getMode() != null?"\nShow: " + presence.getMode() + (presence.getStatus()!= null ? "\nStatus: "+presence.getStatus():""):"");
         }
         return result;
+    }
+    // show presence type, and if user is subscribed based on jid
+    public static String getUnknownUserStatus(Connection connection, String jid) {
+        Presence presence = connection.getRoster().getPresence(jid);
+        return "User: "+ jid + "\nPresence: "+presence.getType();
     }
 
 
