@@ -1,3 +1,9 @@
+// José Javier Hurtarte Hernández
+// Universidad del valle de Guatemala
+// 16-08-2022
+// Java Authenticator class for Xmpp client
+
+
 package org.example;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.filter.PacketFilter;
@@ -38,11 +44,12 @@ public class Authenticator {
 
         }
     }
-
+    // Logs out of connection
     static void logout (Connection connection) {
         connection.disconnect();
     }
 
+    // creates an account with only username and password
     static void createAccount (Connection connection, String username, String password) {
         try {
             connection.getAccountManager().createAccount(username, password);
@@ -50,6 +57,8 @@ public class Authenticator {
             e.printStackTrace();
         }
     }
+
+    //creates account with username, password, full name and email
     static void createAccount (Connection connection, String username, String password, String fullname, String email) {
         // create a hashmap to store the account information
         HashMap<String, String> attributes = new HashMap<String, String>();
@@ -62,6 +71,7 @@ public class Authenticator {
         }
     }
 
+    //deletes an account
     static void deleteAccount (Connection connection) {
         try {
             connection.getAccountManager().deleteAccount();

@@ -1,5 +1,9 @@
-package org.example;
+// José Javier Hurtarte Hernández
+// Universidad del valle de Guatemala
+// 16-08-2022
+// Java Main for Xmpp client
 
+package org.example;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.filter.PacketTypeFilter;
 import org.jivesoftware.smack.packet.Message;
@@ -55,7 +59,7 @@ public class Main2 {
                 } catch (XMPPException e) {
                     System.out.println("Login failed. Please try again.");
                 }
-                // if try was successful, print "Login successful"
+
                 if (connection.isAuthenticated()) {
                     System.out.println("Login successful");
                     authenticated = true;
@@ -87,21 +91,17 @@ public class Main2 {
         System.out.println(CONSOLE_REFRESHER+"¡Welcome " + username + "!");
         String optionMenu = "";
 
-        //Chat chatprueba = createChat(connection, "jjhh2@alumchat.fun");
 
-        //sendMessage(chatprueba, "Hola soy un mensaje ya bueno xd");
-        //Chats normales
         Hashtable<String, Chat> chats = new Hashtable<>();
         Hashtable<String, ArrayList<String>> chatHistory = new Hashtable<>();
 
-        //Chats de grupo
-        //Hashtable<String, Chat> groupChats = new Hashtable<>();
+
         Hashtable<String, ArrayList<String>> groupChatHistory = new Hashtable<>();
 
         ArrayList<String> subscriptionRequests = new ArrayList<>();
 
         recieveMessage(connection, chats, chatHistory, groupChatHistory);
-        //createGroupInviteListener(connection);
+
         receiveSubscriptions(connection);
         String chatWith = "";
         String chatOutgoingMessage = "";
@@ -287,6 +287,7 @@ public class Main2 {
         System.exit(0);
 
     }// end
+    //Function that creates a chat
     public static Chat createChat(Connection connection, String username, Hashtable<String, ArrayList<String>> chatHistory) {
         Chat chat = connection.getChatManager().createChat(username, new MessageListener() {
             @Override
@@ -306,6 +307,8 @@ public class Main2 {
         });
         return chat;
     }
+
+    // sends a message but recieves a chat object
     public static void sendMessage(Chat chat, String message) {
         try {
             chat.sendMessage(message);
@@ -313,18 +316,13 @@ public class Main2 {
             e.printStackTrace();
         }
     }
+
+    //packet listener that interprets the packets of type message
     public static void recieveMessage(Connection connection, Hashtable<String, Chat> chats, Hashtable<String, ArrayList<String>> chatHistory, Hashtable<String, ArrayList<String>> groupChatHistory) {
         connection.addPacketListener(new PacketListener() {
             @Override
             public void processPacket(Packet packet) {
-                //chatHistory.add(packet.toXML());
                 Message message = (Message) packet;
-                //System.out.println(message.getFrom()+ ": " + message.getBody());
-                // check if message is from groupchat
-                //System.out.println(message.getFrom() + "EEEELTIPO"+ ": " + message.getBody());
-                // get the jid of the message invite
-
-                //accept conference invitation
 
 
 
@@ -332,7 +330,7 @@ public class Main2 {
                 if (message.getType() == Message.Type.groupchat) {
                     // check if message is not null
                     if (message.getBody() != null && !connection.getUser().split("@")[0].equals(message.getFrom().split("/")[1])) {
-                        // print the message
+
                         groupChatHistory.get(message.getFrom().split("/")[0]).add(message.getFrom()+"-> "+message.getBody());
                         if(isInsideChat) {
                             System.out.println(message.getFrom() + "-> " + message.getBody());
@@ -345,11 +343,11 @@ public class Main2 {
                 } else{
                     // check if message is not null
                     if (message.getBody() != null) {
-                        // print the message
+
                         if (!chats.containsKey(message.getFrom().split("@")[0])) {
                             chatHistory.put(message.getFrom().split("@")[0], new ArrayList<String>(){
                                 {
-                                    //add(message.getFrom().split("@")[0]+"-> "+message.getBody());
+
                                 }
                             });
                             chats.put(message.getFrom().split("@")[0], createChat(connection, message.getFrom().split("@")[0]+"@alumchat.fun", chatHistory));
@@ -362,33 +360,15 @@ public class Main2 {
         }, new PacketTypeFilter(Message.class));
     }
 
-    // get all my contact status
-    public static void getContactStatus(Connection connection) {
-        Roster roster = connection.getRoster();
-        Collection<RosterEntry> entries = roster.getEntries();
-        for (RosterEntry entry : entries) {
-            Presence presence = roster.getPresence(entry.getUser());
-            System.out.println(entry.getUser() + " " + presence.getType());
-        }
-    }
 
-    public static void getGroupInvites(Connection connection) {
-        try {
-            Roster roster = connection.getRoster();
-            for (RosterEntry entry : roster.getEntries()) {
-                System.out.println(entry.getName());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-    // send a Presence to a jabber id to join a groupchat
+
+    // Method that sends a Presence to a jabber id to join a groupchat
     public static void joinGroupChat(Connection connection, String jid) {
         Presence joinPresence = new Presence(Presence.Type.available);
         joinPresence.setTo(jid+"/"+connection.getUser().split("@")[0]);
         connection.sendPacket(joinPresence);
     }
-    // send Message to a jabber id to send a groupchat message
+    // Method that send Message to a jabber id to send a groupchat message
     public static void sendGroupMessage(Connection connection, String jid, String message) {
         Message groupMessage = new Message();
         groupMessage.setTo(jid);
@@ -397,19 +377,19 @@ public class Main2 {
         connection.sendPacket(groupMessage);
     }
 
-    // subscribe to a user
+    // Method that allows to subscribe to a user
     public static void subscribeToUser(Connection connection, String jid) {
         Presence subscribePresence = new Presence(Presence.Type.subscribe);
         subscribePresence.setTo(jid);
         connection.sendPacket(subscribePresence);
     }
-    // accept a subscription request
+    // Method that allows to accept a subscription request
     public static void acceptSubscription(Connection connection, String jid) {
         Presence subscribePresence = new Presence(Presence.Type.subscribed);
         subscribePresence.setTo(jid);
         connection.sendPacket(subscribePresence);
     }
-    // create a listener to get subscription requests
+    // Method that creates a listener to get subscription requests
     public static void receiveSubscriptions(Connection connection) {
         connection.addPacketListener(new PacketListener() {
             @Override
@@ -421,39 +401,34 @@ public class Main2 {
             }
         }, new PacketTypeFilter(Presence.class));
     }
-    // get all the users that want to subscribe to me
+    // Method that gets all the users that want to subscribe to me
     public static ArrayList<String> getSubscriptions(Connection connection, RosterPacket.ItemType type) {
         Roster roster = connection.getRoster();
         Collection<RosterEntry> entries = roster.getEntries();
         ArrayList<String> subscriptions = new ArrayList<String>();
         for (RosterEntry entry : entries) {
-            //if entry is pending
-            //entry.getType();
+
             if (entry.getType() == type) {
                 subscriptions.add(getUserStatus(connection, entry.getUser(), type));
             }
 
-            //if (entry.getType() == RosterPacket.ItemType.from) {
-            //    subscriptions.add(entry.getUser());
-            //}
+
         }
         return subscriptions;
-        //get all the entries that want to subscribe to me
 
     }
 
 
-    // change my status and status message
+    // Method thats changes status and status message
     public static void changeStatus(Connection connection, Presence.Type type, Presence.Mode mode,String statusMessage) {
         Presence presence = new Presence(type);
         presence.setStatus(statusMessage);
         presence.setMode(mode);
         connection.sendPacket(presence);
     }
-    // Get all presence status, presence type and presence mode of a user
+    // Method that gets all presence status, presence type and presence mode of a user
     public static String getUserStatus(Connection connection, String jid, RosterPacket.ItemType type) {
         Presence presence = connection.getRoster().getPresence(jid);
-        //System.out.println(presence.getType() + " " + presence.getMode() + " " + presence.getStatus());
         String result = "";
         if (RosterPacket.ItemType.to == type) {
             result = "User: "+jid+"\nType: " + presence.getType();
@@ -464,12 +439,12 @@ public class Main2 {
         }
         return result;
     }
-    // show presence type, and if user is subscribed based on jid
+    // Method that shows presence type, and if user is subscribed based on jid
     public static String getUnknownUserStatus(Connection connection, String jid) {
         Presence presence = connection.getRoster().getPresence(jid);
         return "User: "+ jid + "\nPresence: "+presence.getType();
     }
-    // create a roster listener to get roster updates
+    // Method that creates a roster listener to get roster updates
     public static void receiveRosterUpdates(Connection connection) {
         Roster roster = connection.getRoster();
         roster.addRosterListener(new RosterListener() {
