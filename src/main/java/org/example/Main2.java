@@ -229,21 +229,7 @@ public class Main2 {
                 System.out.println("Enter the name of the user that you want to accept his subscription:");
                 chatWith = scanner.nextLine();
                 acceptSubscription(connection, chatWith);
-                //System.out.println(CONSOLE_REFRESHER + "Usuarios con suscripción pendiente:");
-                //subscriptionRequests = getSubscriptions(connection);
-                //for (String pendUser : subscriptionRequests) {
-                //    System.out.println(pendUser);
-                //}
-                //System.out.println("Ingrese el nombre de usuario del usuario con quien desea aceptar la suscripción:");
-                // chatWith = scanner.nextLine();
-                //if(subscriptionRequests.contains(chatWith)){
-                //acceptSubscription(connection, chatWith);
-                //}
-                //else{
-                //System.out.println("No existe la suscripción pendiente");
-                //System.out.println("Presione enter para continuar");
-                //scanner.nextLine();
-                //}
+
             }else if (optionMenu.equals("7")) {
                 System.out.println(CONSOLE_REFRESHER + "Enter the jabber id of the user you want to know information:");
                 chatWith = scanner.nextLine();
